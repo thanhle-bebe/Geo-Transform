@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math 
 
 img = cv2.imread('assets/angry_cat.jpg')
 rows, cols, ch = img.shape
@@ -7,24 +8,53 @@ rows, cols, ch = img.shape
 print("Height: ", rows)
 print("Width: ", cols)
 
+
+#Scale image code
 scaled_img = cv2.resize(img, None, fx=1/2, fy=1/2)
 
+#Translate image code
 matrix_t = np.float32([[1, 0, -200], [0, 1, -70]])
 translated_img = cv2.warpAffine(img, matrix_t, (cols, rows))
 
+#Rotate image code
 matrix_r = cv2.getRotationMatrix2D((cols/2, rows/2), 45, 2)
 rotated_img = cv2.warpAffine(img, matrix_r, (cols, rows))
 
+#Affine transform image code
 src_points = np.float32([[0,0], [cols-1,0], [0,rows-1]])
-dst_points = np.float32([[0,0], [int(0.6*(cols-1)),0], [int(0.4*(cols-1)),rows-1]])
+dst_points = np.float32([[0,0], [int(0.6*(cols-1)),0], [int(-0.3*(cols-1)),rows-1]])
 affine_matrix = cv2.getAffineTransform(src_points, dst_points)
 affine_img = cv2.warpAffine(img, affine_matrix, (cols,rows))
 
+#Vertical wave image code
+vert_wave_img = np.zeros(img.shape, dtype=img.dtype)
+for i in range(rows):
+    for j in range(cols):
+        offset_x = int(25.0 * math.sin(2 * 3.14 * i / 180))
+        offset_y = 0
+        if j+offset_x < rows:
+            vert_wave_img[i,j] = img[i,(j+offset_x)%cols]
+        else:
+            vert_wave_img[i,j] = 0
 
+# Horizontal wave image code
+hor_wave_img = np.zeros(img.shape, dtype=img.dtype)
+for i in range(rows):
+    for j in range(cols):
+        offset_x = 0
+        offset_y = int(16.0 * math.sin(2 * 3.14 * j / 150))
+        if i+offset_y < rows:
+            hor_wave_img[i,j] = img[(i+offset_y)%rows,j]
+        else:
+            hor_wave_img[i,j] = 0
+
+#Display code
 cv2.imshow("Original image", img)
 cv2.imshow("Scaled image", scaled_img)
 cv2.imshow("Translation image", translated_img)
 cv2.imshow("Rotated image", rotated_img)
 cv2.imshow('Affine transform image', affine_img)
+cv2.imshow('Vertical wave image', vert_wave_img)
+cv2.imshow('Horizontal wave', hor_wave_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
