@@ -10,14 +10,21 @@ print("Width: ", cols)
 scaled_img = cv2.resize(img, None, fx=1/2, fy=1/2)
 
 matrix_t = np.float32([[1, 0, -200], [0, 1, -70]])
-transform_img = cv2.warpAffine(img, matrix_t, (cols, rows))
+translated_img = cv2.warpAffine(img, matrix_t, (cols, rows))
 
 matrix_r = cv2.getRotationMatrix2D((cols/2, rows/2), 45, 2)
 rotated_img = cv2.warpAffine(img, matrix_r, (cols, rows))
 
+src_points = np.float32([[0,0], [cols-1,0], [0,rows-1]])
+dst_points = np.float32([[0,0], [int(0.6*(cols-1)),0], [int(0.4*(cols-1)),rows-1]])
+affine_matrix = cv2.getAffineTransform(src_points, dst_points)
+affine_img = cv2.warpAffine(img, affine_matrix, (cols,rows))
+
+
 cv2.imshow("Original image", img)
 cv2.imshow("Scaled image", scaled_img)
-cv2.imshow("Transform image", transform_img)
+cv2.imshow("Translation image", translated_img)
 cv2.imshow("Rotated image", rotated_img)
+cv2.imshow('Affine transform image', affine_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
